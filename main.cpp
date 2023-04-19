@@ -1,4 +1,4 @@
-//g++ main.cpp Meteorito.cpp -lGL -lGLU -lglut -o output
+//g++ main.cpp Meteorito.cpp Shot.cpp -lGL -lGLU -lglut -o output
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -10,6 +10,7 @@
 #include <iomanip>
 
 
+#include "Shot.h"
 #include "Meteorito.h"
 #include <tuple>
 #include "math.h"
@@ -24,9 +25,9 @@ float ZNEAR=0.01;
 float ZFAR=900.0;
 //Variables para definir la posicion del observador
 //gluLookAt(EYE_X,EYE_Y,EYE_Z,CENTER_X,CENTER_Y,CENTER_Z,UP_X,UP_Y,UP_Z)
-float EYE_X=300.0;
+float EYE_X=0.0;
 float EYE_Y=200.0;
-float EYE_Z=300.0;
+float EYE_Z=500.0;
 float CENTER_X=0;
 float CENTER_Y=0;
 float CENTER_Z=0;
@@ -45,7 +46,7 @@ int DimBoard = 200;
 
 #define NObjetos 10
 
-Meteorito c1(DimBoard, 0.3, 0,0,0,5);
+Shot c1(DimBoard, 0.3, 0,0,0,5);
 
 
 
@@ -90,7 +91,7 @@ void drawAxis()
 
 
     for(i = 0; i < 1; i++)
-        objetos[i] = new Meteorito(DimBoard, 0.3, 0,20,0,40);
+        objetos[i] = new Shot(DimBoard, 0.3, 0,20,0,10);
 
 }
 
@@ -109,8 +110,8 @@ void display()
 {
     float r1, r2;
     tuple<float,float,float> p1,p2;
-    Meteorito *aux;
-    Meteorito *aux2;
+    Shot *aux;
+    Shot *aux2;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //drawAxis();
     glColor3f(0.3, 0.3, 0.3);
@@ -123,7 +124,7 @@ void display()
     glEnd();
 
     for(i = 0; i < 1; i++){
-        aux = (Meteorito *)objetos[i];
+        aux = (Shot *)objetos[i];
         r1 = aux->getRadio();
         p1 = aux->getPos();
 
@@ -175,7 +176,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(WIDTH, HEIGTH);
-    glutCreateWindow("Meteorito 1");
+    glutCreateWindow("Shot 1");
     init();
     glutDisplayFunc(display);
     glutIdleFunc(idle);
