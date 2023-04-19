@@ -1,4 +1,4 @@
-//g++ main.cpp Meteorito.cpp Shot.cpp -lGL -lGLU -lglut -o output
+//g++ main.cpp Meteorito.cpp Shot.cpp Nave.cpp -lGL -lGLU -lglut -o output
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -12,6 +12,7 @@
 
 #include "Shot.h"
 #include "Meteorito.h"
+#include "Nave.h"
 #include <tuple>
 #include "math.h"
 using namespace std;
@@ -91,7 +92,7 @@ void drawAxis()
 
 
     for(i = 0; i < 1; i++)
-        objetos[i] = new Shot(DimBoard, 0.3, 0,20,0,10);
+        objetos[i] = new Nave(DimBoard, 0.3);
 
 }
 
@@ -110,8 +111,8 @@ void display()
 {
     float r1, r2;
     tuple<float,float,float> p1,p2;
-    Shot *aux;
-    Shot *aux2;
+    Nave *aux;
+    Nave *aux2;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //drawAxis();
     glColor3f(0.3, 0.3, 0.3);
@@ -124,7 +125,7 @@ void display()
     glEnd();
 
     for(i = 0; i < 1; i++){
-        aux = (Shot *)objetos[i];
+        aux = (Nave *)objetos[i];
         r1 = aux->getRadio();
         p1 = aux->getPos();
 
@@ -176,7 +177,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(WIDTH, HEIGTH);
-    glutCreateWindow("Shot 1");
+    glutCreateWindow("Space war");
     init();
     glutDisplayFunc(display);
     glutIdleFunc(idle);
