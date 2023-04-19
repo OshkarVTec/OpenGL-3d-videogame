@@ -17,7 +17,7 @@ class Nave
         Nave(int, float);
         ~Nave();
         void draw();
-        void update();
+        void update(int);
         tuple<float,float,float> getPos();
         float getRadio();
         void collided();
@@ -38,7 +38,7 @@ class Nave
                   6,2,1,5, 6,5,4,7, 6,7,3,2  };
 
         //Vector de direccion
-        float Position[3] = {0, 10, 250};
+        float Position[3] = {0, 10, 200};
         float Direction[3];
         int DimBoard;
         float radio;
