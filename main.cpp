@@ -197,7 +197,6 @@ void display()
     delta = meteoritosActuales - meteoritosAnteriores;
     if(delta > 5) lineaMeteoritos();
     for(auto j : activeMeteoritos){
-      cout << j << endl;
       auxM = (Meteorito *)meteoritos[j];
       auxM->draw();
       auxM->update();
@@ -206,7 +205,7 @@ void display()
         remove(activeMeteoritos.begin(),activeMeteoritos.end(),j);
         break;
       }
-      //Colision con nave
+    //Colision con nave
       if (checkCollision(nave->getRadio(), auxM->getRadio(), nave->getPos(), pos)){
         gameOver();
       }
