@@ -28,7 +28,7 @@ int HEIGTH=500;
 //Variables para establecer los valores de gluPerspective
 float FOVY=60.0;
 float ZNEAR=0.01;
-float ZFAR=900.0;
+float ZFAR=1000.0;
 //Variables para definir la posicion del observador
 //gluLookAt(EYE_X,EYE_Y,EYE_Z,CENTER_X,CENTER_Y,CENTER_Z,UP_X,UP_Y,UP_Z)
 float EYE_X=0.0;
@@ -52,9 +52,15 @@ int DimBoard = 200;
 //Direccion de nave
 int dir = 2;
 
+//timers
 time_t disparoAnterior = time(NULL);
 time_t disparoActual;
 time_t delta;
+
+time_t meteoritosActuales;
+time_t meteoritosAnteriores = time(NULL);
+
+
 
 bool trigger = false;
 
@@ -63,9 +69,11 @@ bool trigger = false;
 
 
 vector<int> activeShots;
+vector<int> activeMeteoritos;
 
 void *objetos[NObjetos];
 void *shots[NObjetos];
+void *meteoritos[20];
 int i;
 
 void drawAxis()
@@ -141,16 +149,29 @@ void fire(tuple<float,float,float> pos){
   disparoAnterior = time(NULL);
 }
 
+void lineaMeteoritos(){
+  for (i = 0; i < 20; i++){
+    if (find(activeMeteoritos.begin(), activeMeteoritos.end(), i) == activeMeteoritos.end()){
+      activeMeteoritos.push_back(i);
+      meteoritos[i] = new Meteorito(DimBoard, 2, 0, 10, -800, 30);
+      break;
+    }
+  }
+  meteoritosAnteriores = time(NULL);
+}
+
 void display()
 {   
     float r1, r2;
     tuple<float,float,float> pos;
     Nave *aux;
     Shot *auxS;
+    Meteorito *auxM;
     keyOperations();  
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //drawAxis();
     glColor3f(0.3, 0.3, 0.3);
+
     //El piso es dibujado
     glBegin(GL_QUADS);
         glVertex3d(-DimBoard, 0.0, -DimBoard);
@@ -159,10 +180,26 @@ void display()
         glVertex3d(DimBoard, 0.0, -DimBoard);
     glEnd();
 
+    //Se dibujan los meteoritos
+    meteoritosActuales = time(NULL);
+    delta = meteoritosActuales - meteoritosAnteriores;
+    if(delta > 5) lineaMeteoritos();
+    for(auto j : activeMeteoritos){
+      auxM = (Meteorito *)meteoritos[j];
+      auxM->draw();
+      auxM->update();
+      pos = auxM->getPos();
+      if (get<2>(pos )> 200){
+        remove(activeMeteoritos.begin(),activeMeteoritos.end(),j);
+      }
+    }
+
+    //Se dibuja la nave
     aux = (Nave *)objetos[0];
     aux->draw();
     aux->update(dir);
 
+    //Se dibujan los disparos
     for(auto j : activeShots){
       auxS = (Shot *)shots[j];
       auxS->draw();

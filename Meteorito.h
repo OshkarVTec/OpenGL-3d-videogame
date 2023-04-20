@@ -27,7 +27,7 @@ class Meteorito
     private:
         //Vector de direccion
         float Position[3];
-        float Direction[3] = {0.0, 5.0, 0.0};
+        float Direction[3] = {0.0, 0.0, 1.0};
         int DimBoard;
         float radio;
         bool collision;
