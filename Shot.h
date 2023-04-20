@@ -27,7 +27,7 @@ class Shot
     private:
         //Vector de direccion
         float Position[3];
-        float Direction[3] = {0.0, 5.0, 0.0};
+        float Direction[3] = {0,0,-10};
         int DimBoard;
         float radio;
         bool collision;

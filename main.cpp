@@ -8,14 +8,19 @@
 #include <stdlib.h>
 #include <random>
 #include <iomanip>
+#include <vector>
 
 
 #include "Shot.h"
 #include "Meteorito.h"
 #include "Nave.h"
 #include <tuple>
+#include <time.h>
+#include <algorithm>
 #include "math.h"
 using namespace std;
+
+bool* keyStates = new bool[256]; 
 
 //Variables dimensiones de la pantalla
 int WIDTH=500;
@@ -44,14 +49,23 @@ float Z_MIN=-500;
 float Z_MAX=500;
 //Size del tablero
 int DimBoard = 200;
+//Direccion de nave
+int dir = 2;
+
+time_t disparoAnterior = time(NULL);
+time_t disparoActual;
+time_t delta;
+
+bool trigger = false;
+
 
 #define NObjetos 10
 
-Shot c1(DimBoard, 0.3, 0,0,0,5);
 
-
+vector<int> activeShots;
 
 void *objetos[NObjetos];
+void *shots[NObjetos];
 int i;
 
 void drawAxis()
@@ -107,12 +121,33 @@ bool checkCollision(float r1, float r2, tuple<float,float,float> const &p1 , tup
   return c;
 }
 
+void keyOperations (void) {  
+  if (keyStates['a'] || keyStates['A']) dir = 0;
+  else if (keyStates['d'] || keyStates['D']) dir = 1;
+  else  dir = 2;
+
+  if(keyStates['w'] || keyStates['W']) trigger = true;
+}  
+
+void fire(tuple<float,float,float> pos){
+  for (i = 0; i < 10; i++){
+    if (find(activeShots.begin(), activeShots.end(), i) == activeShots.end()){
+      activeShots.push_back(i);
+      shots[i] = new Shot(DimBoard, 0.3, get<0>(pos), get<1>(pos),get<2>(pos), 5);
+      break;
+    }
+  }
+  cout << "fire" << endl;
+  disparoAnterior = time(NULL);
+}
+
 void display()
-{
+{   
     float r1, r2;
-    tuple<float,float,float> p1,p2;
+    tuple<float,float,float> pos;
     Nave *aux;
-    Nave *aux2;
+    Shot *auxS;
+    keyOperations();  
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //drawAxis();
     glColor3f(0.3, 0.3, 0.3);
@@ -124,17 +159,30 @@ void display()
         glVertex3d(DimBoard, 0.0, -DimBoard);
     glEnd();
 
-    for(i = 0; i < 1; i++){
-        aux = (Nave *)objetos[i];
-        r1 = aux->getRadio();
-        p1 = aux->getPos();
+    aux = (Nave *)objetos[0];
+    aux->draw();
+    aux->update(dir);
 
-        aux->draw();
-        aux->update();
+    for(auto j : activeShots){
+      auxS = (Shot *)shots[j];
+      auxS->draw();
+      auxS->update();
+      pos = auxS->getPos();
+      if (get<2>(pos)<-200){
+        remove(activeShots.begin(),activeShots.end(),j);
+      }
     }
 
-
-
+    //Disparo
+    if(trigger){
+      disparoActual = time(NULL);
+      delta = disparoActual - disparoAnterior;
+      if(delta > 1){
+        pos = aux->getPos();
+        fire(pos);
+      }
+      trigger = false;
+    }
     glutSwapBuffers();
 }
 
@@ -144,31 +192,14 @@ void idle()
 }
 
 void keyboard(unsigned char key, int x, int y)
-{
-    switch(key)
-    {//SOLID
-    case 's':
-    case 'S':
-            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-            glShadeModel(GL_FLAT);
-      break;
-    //INTERPOL
-    case 'i':
-    case 'I':
-            glShadeModel(GL_SMOOTH);
-            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-      break;
-
-    case 'w':
-    case 'W':
-            glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-      break;
-
-    case 27:   // escape
+{   
+    keyStates[key] = true;
+    if (key == 27)  // escape
       exit(0);
-      break;
-    }
-    glutPostRedisplay();
+}
+
+void keyUp (unsigned char key, int x, int y) {  
+  keyStates[key] = false;
 }
 
 int main(int argc, char **argv)
@@ -182,6 +213,7 @@ int main(int argc, char **argv)
     glutDisplayFunc(display);
     glutIdleFunc(idle);
     glutKeyboardFunc(keyboard);
+    glutKeyboardUpFunc(keyUp);
     glutMainLoop();
     return 0;
 }
