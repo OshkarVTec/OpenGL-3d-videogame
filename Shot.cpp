@@ -21,8 +21,8 @@ Shot::Shot(int dim, float vel,float x, float y, float z, float height)
     //cal. del radio Shot
     this->height = height;
     radio = height / 2;
-    cout << Direction[0] << endl;
-    cout << Direction[2] << endl; 
+    //cout << Direction[0] << endl;
+    //cout << Direction[2] << endl; 
     collision = false;
 }
 

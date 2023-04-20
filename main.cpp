@@ -121,11 +121,12 @@ void drawAxis()
 bool checkCollision(float r1, float r2, tuple<float,float,float> const &p1 , tuple<float,float,float> const &p2){
   //cout << get<0>(p1) << " " << get<0>(p2) << endl;
   float dist = sqrt(pow(get<0>(p1)-get<0>(p2),2)+pow(get<1>(p1)-get<1>(p2),2)+pow(get<2>(p1)-get<2>(p2),2));
-  //cout << dist << endl;
+  
   dist -= (r1+r2);
-  bool c;
+  //cout << dist << endl;
+  bool c = false;
   if (dist <= 0) c = true;
-  else c = false;
+  //cout << c << endl;
   return c;
 }
 
@@ -160,11 +161,17 @@ void lineaMeteoritos(){
   meteoritosAnteriores = time(NULL);
 }
 
+void gameOver(){
+  cout << "Game Over" << endl;
+  exit(0);
+}
+
 void display()
-{   
+{ 
     float r1, r2;
     tuple<float,float,float> pos;
-    Nave *aux;
+    tuple<float,float,float> posNave;
+    Nave *nave;
     Shot *auxS;
     Meteorito *auxM;
     keyOperations();  
@@ -180,24 +187,31 @@ void display()
         glVertex3d(DimBoard, 0.0, -DimBoard);
     glEnd();
 
+    //Se dibuja la nave
+    nave = (Nave *)objetos[0];
+    nave->draw();
+    nave->update(dir);
+
     //Se dibujan los meteoritos
     meteoritosActuales = time(NULL);
     delta = meteoritosActuales - meteoritosAnteriores;
     if(delta > 5) lineaMeteoritos();
     for(auto j : activeMeteoritos){
+      cout << j << endl;
       auxM = (Meteorito *)meteoritos[j];
       auxM->draw();
       auxM->update();
       pos = auxM->getPos();
       if (get<2>(pos )> 200){
         remove(activeMeteoritos.begin(),activeMeteoritos.end(),j);
+        break;
+      }
+      //Colision con nave
+      if (checkCollision(nave->getRadio(), auxM->getRadio(), nave->getPos(), pos)){
+        gameOver();
       }
     }
 
-    //Se dibuja la nave
-    aux = (Nave *)objetos[0];
-    aux->draw();
-    aux->update(dir);
 
     //Se dibujan los disparos
     for(auto j : activeShots){
@@ -205,23 +219,29 @@ void display()
       auxS->draw();
       auxS->update();
       pos = auxS->getPos();
-      if (get<2>(pos)<-200){
+      if (get<2>(pos)<-800){
         remove(activeShots.begin(),activeShots.end(),j);
+        break;
       }
+      //Colision meteorito-disparo
+
     }
+
 
     //Disparo
     if(trigger){
       disparoActual = time(NULL);
       delta = disparoActual - disparoAnterior;
       if(delta > 1){
-        pos = aux->getPos();
-        fire(pos);
+        fire(nave->getPos());
       }
       trigger = false;
     }
+
+  
     glutSwapBuffers();
 }
+
 
 void idle()
 {
