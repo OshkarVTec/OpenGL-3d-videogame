@@ -19,8 +19,6 @@ Meteorito::Meteorito(int dim, float vel,float x, float y, float z, float radio)
 
     //cal. del radio Meteorito
     this->radio = radio;
-    cout << Direction[0] << endl;
-    cout << Direction[2] << endl; 
     collision = false;
 }
 
