@@ -139,7 +139,13 @@ void fire(tuple<float,float,float> pos){
 }
 
 void lineaMeteoritos(){
-  meteoritos.push_back(new Meteorito(DimBoard, 2, 0, 10, -800, 30));
+  double probability = 0.5;
+  for (i = -200; i <= 200; i += 80){
+    double randomNumber = (double) rand() / RAND_MAX;
+    if (randomNumber < probability) {
+        meteoritos.push_back(new Meteorito(DimBoard, 2, i, 10, -800, 30));
+    }
+  }
   meteoritosAnteriores = time(NULL);
 }
 
@@ -247,6 +253,7 @@ void keyUp (unsigned char key, int x, int y) {
 
 int main(int argc, char **argv)
 {
+    srand(time(NULL));
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
     glutInitWindowPosition(100, 100);
