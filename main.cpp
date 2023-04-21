@@ -159,11 +159,8 @@ void drawString(string str, int x, int y) {
     }
 }
 
-
-void display()
-{ 
-    if(!gameOver){
-      float r1, r2;
+void normalGame(){
+  float r1, r2;
       tuple<float,float,float> pos;
       tuple<float,float,float> posNave;
       Nave *nave;
@@ -235,11 +232,15 @@ void display()
           fire(nave->getPos());
         }
         trigger = false;
-      }
+}
+}
 
-    
-      
-    }
+
+void display()
+{ 
+    if(!gameOver){
+        normalGame();
+      }
     else {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
