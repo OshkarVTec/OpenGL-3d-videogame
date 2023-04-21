@@ -51,6 +51,8 @@ float Z_MAX=500;
 int DimBoard = 200;
 //Direccion de nave
 int dir = 2;
+//Bandera de fin de juego
+bool gameOver = false;
 
 //timers
 time_t disparoAnterior = time(NULL);
@@ -143,94 +145,114 @@ void lineaMeteoritos(){
   for (i = -200; i <= 200; i += 80){
     double randomNumber = (double) rand() / RAND_MAX;
     if (randomNumber < probability) {
-        meteoritos.push_back(new Meteorito(DimBoard, 2, i, 10, -800, 30));
+        meteoritos.push_back(new Meteorito(DimBoard, 4, i, 10, -800, 30));
     }
   }
   meteoritosAnteriores = time(NULL);
 }
 
-void gameOver(){
-  cout << "Game Over" << endl;
-  exit(0);
+// Function to display text on the screen
+void drawString(string str, int x, int y) {
+    glRasterPos2i(x, y);
+    for (int i = 0; i < str.length(); i++) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, str[i]);
+    }
 }
+
 
 void display()
 { 
-    float r1, r2;
-    tuple<float,float,float> pos;
-    tuple<float,float,float> posNave;
-    Nave *nave;
-    Shot *auxS;
-    Meteorito *auxM;
-    keyOperations();  
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //drawAxis();
-    glColor3f(0.3, 0.3, 0.3);
+    if(!gameOver){
+      float r1, r2;
+      tuple<float,float,float> pos;
+      tuple<float,float,float> posNave;
+      Nave *nave;
+      Shot *auxS;
+      Meteorito *auxM;
+      keyOperations();  
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      //drawAxis();
+      glColor3f(0.3, 0.3, 0.3);
 
-    //El piso es dibujado
-    glBegin(GL_QUADS);
-        glVertex3d(-DimBoard, 0.0, -DimBoard);
-        glVertex3d(-DimBoard, 0.0, DimBoard);
-        glVertex3d(DimBoard, 0.0, DimBoard);
-        glVertex3d(DimBoard, 0.0, -DimBoard);
-    glEnd();
+      //El piso es dibujado
+      glBegin(GL_QUADS);
+          glVertex3d(-DimBoard, 0.0, -DimBoard);
+          glVertex3d(-DimBoard, 0.0, DimBoard);
+          glVertex3d(DimBoard, 0.0, DimBoard);
+          glVertex3d(DimBoard, 0.0, -DimBoard);
+      glEnd();
 
-    //Se dibuja la nave
-    nave = (Nave *)objetos[0];
-    nave->draw();
-    nave->update(dir);
+      //Se dibuja la nave
+      nave = (Nave *)objetos[0];
+      nave->draw();
+      nave->update(dir);
 
-    //Se dibujan los meteoritos
-    meteoritosActuales = time(NULL);
-    delta = meteoritosActuales - meteoritosAnteriores;
-    if(delta > 5) lineaMeteoritos();
-    for(int j = 0; j < meteoritos.size(); j++){
-      auxM = (Meteorito *)meteoritos[j];
-      auxM->draw();
-      auxM->update();
-      pos = auxM->getPos();
-      if (get<2>(pos )> 200){
-        meteoritos.erase(meteoritos.begin()+j);
-        break;
-      }
-    //Colision con nave
-      if (checkCollision(nave->getRadio(), auxM->getRadio(), nave->getPos(), pos)){
-        gameOver();
-      }
-    }
-
-    //Se dibujan los disparos
-    for(int j = 0; j < shots.size(); j++){
-      auxS = (Shot *)shots[j];
-      auxS->draw();
-      auxS->update();
-      pos = auxS->getPos();
-      if (get<2>(pos)<-800){
-        shots.erase(shots.begin()+j);
-        break;
-      }
-      //Colision meteorito-disparo
-      for(int k = 0; k < meteoritos.size(); k++){
-        auxM = (Meteorito *)meteoritos[k];
-        if(checkCollision(auxS->getRadio(),auxM->getRadio(), pos, auxM->getPos())){
-          meteoritos.erase(meteoritos.begin()+k);
-          shots.erase(shots.begin()+j);
-          goto after;
+      //Se dibujan los meteoritos
+      meteoritosActuales = time(NULL);
+      delta = meteoritosActuales - meteoritosAnteriores;
+      if(delta > 0.5) lineaMeteoritos();
+      for(int j = 0; j < meteoritos.size(); j++){
+        auxM = (Meteorito *)meteoritos[j];
+        auxM->draw();
+        auxM->update();
+        pos = auxM->getPos();
+        if (get<2>(pos )> 200){
+          meteoritos.erase(meteoritos.begin()+j);
+          break;
+        }
+      //Colision con nave
+        if (checkCollision(nave->getRadio(), auxM->getRadio(), nave->getPos(), pos)){
+          gameOver = true;
         }
       }
-    }
-    after:
-    //Disparo
-    if(trigger){
-      disparoActual = time(NULL);
-      delta = disparoActual - disparoAnterior;
-      if(delta > 1){
-        fire(nave->getPos());
-      }
-      trigger = false;
-    }
 
-  
+      //Se dibujan los disparos
+      for(int j = 0; j < shots.size(); j++){
+        auxS = (Shot *)shots[j];
+        auxS->draw();
+        auxS->update();
+        pos = auxS->getPos();
+        if (get<2>(pos)<-800){
+          shots.erase(shots.begin()+j);
+          break;
+        }
+        //Colision meteorito-disparo
+        for(int k = 0; k < meteoritos.size(); k++){
+          auxM = (Meteorito *)meteoritos[k];
+          if(checkCollision(auxS->getRadio(),auxM->getRadio(), pos, auxM->getPos())){
+            meteoritos.erase(meteoritos.begin()+k);
+            shots.erase(shots.begin()+j);
+            goto after;
+          }
+        }
+      }
+      after:
+      //Disparo
+      if(trigger){
+        disparoActual = time(NULL);
+        delta = disparoActual - disparoAnterior;
+        if(delta > 1){
+          fire(nave->getPos());
+        }
+        trigger = false;
+      }
+
+    
+      
+    }
+    else {
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+      // Disable depth testing
+      glDisable(GL_DEPTH_TEST);
+      
+      // Display game over message
+      glColor3f(1.0f, 0.0f, 0.0f); // Set color to red
+      drawString("Game Over", -60, 100); // Display text at position (100, 100)
+      
+      // Enable depth testing
+      glEnable(GL_DEPTH_TEST);
+    }
     glutSwapBuffers();
 }
 
