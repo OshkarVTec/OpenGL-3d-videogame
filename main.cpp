@@ -62,6 +62,9 @@ time_t delta;
 time_t meteoritosActuales;
 time_t meteoritosAnteriores = time(NULL);
 
+time_t start = time(NULL);
+time_t current;
+
 
 
 bool trigger = false;
@@ -235,11 +238,18 @@ void normalGame(){
 }
 }
 
+void boss(){
+  exit(0);
+}
+
 
 void display()
 { 
     if(!gameOver){
-        normalGame();
+        current = time(NULL);
+        delta = current - start;
+        if(delta < 30) normalGame();
+        else boss();
       }
     else {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
