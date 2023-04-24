@@ -51,8 +51,11 @@ float Z_MAX=500;
 int DimBoard = 200;
 //Direccion de nave
 int dir = 2;
+//Direccion de nave enemiga
+int dirEnemy = 2;
 //Bandera de fin de juego
 bool gameOver = false;
+
 
 //timers
 time_t disparoAnterior = time(NULL);
@@ -170,6 +173,43 @@ void drawString(string str, int x, int y) {
     }
 }
 
+//From GeeksForGeeks
+float minimax(int depth, int nodeIndex, bool isMax,
+            vector<float> &scores, int h)
+{
+    // Terminating condition. i.e
+    // leaf node is reached
+    if (depth == h)
+        return scores[nodeIndex];
+ 
+    //  If current move is maximizer,
+    // find the maximum attainable
+    // value
+    if (isMax){
+        //cout << "max " << nodeIndex*2 << ":"  << scores[nodeIndex*2] << " " << nodeIndex*2+1 <<  ":" << scores[nodeIndex*2+1] << endl;
+       return max(minimax(depth+1, nodeIndex*2, false, scores, h),
+            minimax(depth+1, nodeIndex*2 + 1, false, scores, h));
+    }
+    // Else (If current move is Minimizer), find the minimum
+    // attainable value
+    else{
+        //cout << "min " << nodeIndex*2 << ":" << scores[nodeIndex*2] << " " << nodeIndex*2+1 <<  ":" << scores[nodeIndex*2+1] << endl;
+        return min(minimax(depth+1, nodeIndex*2, true, scores, h),
+            minimax(depth+1, nodeIndex*2 + 1, true, scores, h));
+    }
+}
+
+int minimaxStarter(int depth, int nodeIndex,
+            vector<float> &scores, int h){
+  float a = minimax(depth+1, nodeIndex*2, false, scores, h);
+  float b = minimax(depth+1, nodeIndex*2 + 1, false, scores, h);
+  if (a > b) return 0;
+  else return 1;
+}
+
+void buildTree(vector<float> &scores){
+
+}
 
 
 void normalGame(){
@@ -251,6 +291,9 @@ void normalGame(){
 void boss(){
   tuple<float,float,float> pos;
   tuple<float,float,float> posNave;
+  //Arbol de juego
+  vector<float> scores;
+  buildTree(scores);
   Shot *auxS;
   Meteorito *auxM;
   Nave *nave, *enemy;
@@ -275,7 +318,8 @@ void boss(){
   //Se dibuja la nave enemiga
   enemy = (Nave *)naves[1];
   enemy->draw();
-  enemy->update(dir);
+  //dirEnemy = minimaxStarter(0,0, scores, 5);// A simple C++ program to find
+  enemy->update(dirEnemy);
 
   //Se dibujan los meteoritos
   for(int j = 0; j < meteoritos.size(); j++){
