@@ -1,12 +1,14 @@
 #include "Nave.h"
 #include "math.h"
 
-Nave::Nave(int dim, float vel)
+Nave::Nave(int dim, float vel, float x, float y, float z)
 {
     DimBoard = dim;
     //srand(time(nullptr));
     int c;
-
+    Position[0] = x;
+    Position[1] = y;
+    Position[2] = z;
     Direction[2] *= vel;
 
     //cal. del radio cubo

@@ -68,12 +68,13 @@ time_t current;
 
 
 bool trigger = false;
+float health = 1.0f;
 
 
 #define NObjetos 10
 
 
-vector<void*> objetos;
+vector<void*> naves;
 vector<void*> shots;
 vector<void*> meteoritos;
 
@@ -114,7 +115,8 @@ void drawAxis()
     glClearColor(0,0,0,0);
     glEnable(GL_DEPTH_TEST);
     srand(time(nullptr));
-    objetos.push_back(new Nave(DimBoard, 0.3));
+    naves.push_back(new Nave(DimBoard, 0.3, 0, 10, 200));
+    naves.push_back(new Nave(DimBoard, 0.3, 0, 10, -400));
 
 }
 
@@ -162,84 +164,156 @@ void drawString(string str, int x, int y) {
     }
 }
 
+
+
 void normalGame(){
   float r1, r2;
-      tuple<float,float,float> pos;
-      tuple<float,float,float> posNave;
-      Nave *nave;
-      Shot *auxS;
-      Meteorito *auxM;
-      keyOperations();  
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      //drawAxis();
-      glColor3f(0.3, 0.3, 0.3);
+  tuple<float,float,float> pos;
+  tuple<float,float,float> posNave;
+  Nave *nave;
+  Shot *auxS;
+  Meteorito *auxM;
+  keyOperations();  
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //drawAxis();
+  glColor3f(0.3, 0.3, 0.3);
 
-      //El piso es dibujado
-      glBegin(GL_QUADS);
-          glVertex3d(-DimBoard, 0.0, -DimBoard);
-          glVertex3d(-DimBoard, 0.0, DimBoard);
-          glVertex3d(DimBoard, 0.0, DimBoard);
-          glVertex3d(DimBoard, 0.0, -DimBoard);
-      glEnd();
+  //El piso es dibujado
+  glBegin(GL_QUADS);
+      glVertex3d(-DimBoard, 0.0, -DimBoard);
+      glVertex3d(-DimBoard, 0.0, DimBoard);
+      glVertex3d(DimBoard, 0.0, DimBoard);
+      glVertex3d(DimBoard, 0.0, -DimBoard);
+  glEnd();
 
-      //Se dibuja la nave
-      nave = (Nave *)objetos[0];
-      nave->draw();
-      nave->update(dir);
+  //Se dibuja la nave
+  nave = (Nave *)naves[0];
+  nave->draw();
+  nave->update(dir);
 
-      //Se dibujan los meteoritos
-      meteoritosActuales = time(NULL);
-      delta = meteoritosActuales - meteoritosAnteriores;
-      if(delta > 0.5) lineaMeteoritos();
-      for(int j = 0; j < meteoritos.size(); j++){
-        auxM = (Meteorito *)meteoritos[j];
-        auxM->draw();
-        auxM->update();
-        pos = auxM->getPos();
-        if (get<2>(pos )> 200){
-          meteoritos.erase(meteoritos.begin()+j);
-          break;
-        }
-      //Colision con nave
-        if (checkCollision(nave->getRadio(), auxM->getRadio(), nave->getPos(), pos)){
-          gameOver = true;
-        }
+  //Se dibujan los meteoritos
+  meteoritosActuales = time(NULL);
+  delta = meteoritosActuales - meteoritosAnteriores;
+  if(delta > 0.5) lineaMeteoritos();
+  for(int j = 0; j < meteoritos.size(); j++){
+    auxM = (Meteorito *)meteoritos[j];
+    auxM->draw();
+    auxM->update();
+    pos = auxM->getPos();
+    if (get<2>(pos )> 200){
+      meteoritos.erase(meteoritos.begin()+j);
+      break;
+    }
+  //Colision con nave
+    if (checkCollision(nave->getRadio(), auxM->getRadio(), nave->getPos(), pos)){
+      gameOver = true;
+    }
+  }
+
+  //Se dibujan los disparos
+  for(int j = 0; j < shots.size(); j++){
+    auxS = (Shot *)shots[j];
+    auxS->draw();
+    auxS->update();
+    pos = auxS->getPos();
+    if (get<2>(pos)<-800){
+      shots.erase(shots.begin()+j);
+      break;
+    }
+    //Colision meteorito-disparo
+    for(int k = 0; k < meteoritos.size(); k++){
+      auxM = (Meteorito *)meteoritos[k];
+      if(checkCollision(auxS->getRadio(),auxM->getRadio(), pos, auxM->getPos())){
+        meteoritos.erase(meteoritos.begin()+k);
+        shots.erase(shots.begin()+j);
+        goto after;
       }
-
-      //Se dibujan los disparos
-      for(int j = 0; j < shots.size(); j++){
-        auxS = (Shot *)shots[j];
-        auxS->draw();
-        auxS->update();
-        pos = auxS->getPos();
-        if (get<2>(pos)<-800){
-          shots.erase(shots.begin()+j);
-          break;
-        }
-        //Colision meteorito-disparo
-        for(int k = 0; k < meteoritos.size(); k++){
-          auxM = (Meteorito *)meteoritos[k];
-          if(checkCollision(auxS->getRadio(),auxM->getRadio(), pos, auxM->getPos())){
-            meteoritos.erase(meteoritos.begin()+k);
-            shots.erase(shots.begin()+j);
-            goto after;
-          }
-        }
-      }
-      after:
-      //Disparo
-      if(trigger){
-        disparoActual = time(NULL);
-        delta = disparoActual - disparoAnterior;
-        if(delta > 1){
-          fire(nave->getPos());
-        }
-        trigger = false;
-}
+    }
+  }
+  after:
+  //Disparo
+  if(trigger){
+    disparoActual = time(NULL);
+    delta = disparoActual - disparoAnterior;
+    if(delta > 1){
+      fire(nave->getPos());
+    }
+    trigger = false;
+  }
 }
 
 void boss(){
-  exit(0);
+  tuple<float,float,float> pos;
+  tuple<float,float,float> posNave;
+  Shot *auxS;
+  Meteorito *auxM;
+  Nave *nave, *enemy;
+  keyOperations();  
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //drawAxis();
+  glColor3f(0.3, 0.3, 0.3);
+
+  //El piso es dibujado
+  glBegin(GL_QUADS);
+      glVertex3d(-DimBoard, 0.0, -DimBoard);
+      glVertex3d(-DimBoard, 0.0, DimBoard);
+      glVertex3d(DimBoard, 0.0, DimBoard);
+      glVertex3d(DimBoard, 0.0, -DimBoard);
+  glEnd();
+
+  //Se dibuja la nave
+  nave = (Nave *)naves[0];
+  nave->draw();
+  nave->update(dir);
+
+  //Se dibuja la nave enemiga
+  enemy = (Nave *)naves[1];
+  enemy->draw();
+  enemy->update(dir);
+
+  //Se dibujan los meteoritos
+  meteoritosActuales = time(NULL);
+  delta = meteoritosActuales - meteoritosAnteriores;
+  for(int j = 0; j < meteoritos.size(); j++){
+    auxM = (Meteorito *)meteoritos[j];
+    auxM->draw();
+    auxM->update();
+    pos = auxM->getPos();
+    if (get<2>(pos )> 200){
+      meteoritos.erase(meteoritos.begin()+j);
+      break;
+    }
+  }
+          //Se dibujan los disparos
+  for(int j = 0; j < shots.size(); j++){
+    auxS = (Shot *)shots[j];
+    auxS->draw();
+    auxS->update();
+    pos = auxS->getPos();
+    if (get<2>(pos)<-800){
+      shots.erase(shots.begin()+j);
+      break;
+    }
+    //Colision meteorito-disparo
+    for(int k = 0; k < meteoritos.size(); k++){
+      auxM = (Meteorito *)meteoritos[k];
+      if(checkCollision(auxS->getRadio(),auxM->getRadio(), pos, auxM->getPos())){
+        meteoritos.erase(meteoritos.begin()+k);
+        shots.erase(shots.begin()+j);
+        goto after;
+      }
+    }
+  }
+  after:
+  //Disparo
+  if(trigger){
+    disparoActual = time(NULL);
+    delta = disparoActual - disparoAnterior;
+    if(delta > 1){
+      fire(nave->getPos());
+    }
+    trigger = false;
+  }
 }
 
 
@@ -248,7 +322,7 @@ void display()
     if(!gameOver){
         current = time(NULL);
         delta = current - start;
-        if(delta < 30) normalGame();
+        if(delta < 1) normalGame();
         else boss();
       }
     else {
