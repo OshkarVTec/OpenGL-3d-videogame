@@ -1,7 +1,7 @@
 #include "Shot.h"
 #include "math.h"
 
-Shot::Shot(int dim, float vel,float x, float y, float z, float height, float dirZ)
+Shot::Shot(int dim, float vel,float x, float y, float z, float height, float dirZ, bool enemy)
 {
     DimBoard = dim;
     //srand(time(nullptr));
@@ -24,6 +24,7 @@ Shot::Shot(int dim, float vel,float x, float y, float z, float height, float dir
     //cout << Direction[0] << endl;
     //cout << Direction[2] << endl; 
     collision = false;
+    this->enemy = enemy;
 }
 
 Shot::~Shot()
@@ -36,7 +37,8 @@ void Shot::draw()
     glPushMatrix();
     glTranslatef(Position[0],Position[1], Position[2]); 
     glRotatef(90.0f, 0.0f, 0.0f, 1.0f); 
-    glColor3f(0.0f, 1.0f, 0.0f);
+    if(enemy) glColor3f(1.0f, 0.0f, 0.0f);
+    else glColor3f(0.0f, 1.0f, 0.0f);
     GLUquadricObj* quad = gluNewQuadric();
     gluQuadricNormals(quad, GLU_SMOOTH);
     gluCylinder(quad, 5, 5, height, 30, 30);

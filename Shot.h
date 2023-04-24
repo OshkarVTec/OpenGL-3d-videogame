@@ -14,7 +14,7 @@ using namespace std;
 class Shot
 {
     public:
-        Shot(int, float, float, float, float, float, float);
+        Shot(int, float, float, float, float, float, float, bool);
         ~Shot();
         void draw();
         void update();
@@ -32,6 +32,7 @@ class Shot
         float radio;
         bool collision;
         float height;
+        bool enemy;
 };
 
 #endif // Shot_H

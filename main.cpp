@@ -117,7 +117,7 @@ void drawAxis()
     glEnable(GL_DEPTH_TEST);
     srand(time(nullptr));
     naves.push_back(new Nave(DimBoard, 0.3, 0, 10, 200));
-    naves.push_back(new Nave(DimBoard, 0.3, 0, 10, -400));
+    naves.push_back(new Nave(DimBoard, 0.3, 0, 10, -200));
 
 }
 
@@ -141,13 +141,13 @@ void keyOperations (void) {
 }  
 
 void fire(tuple<float,float,float> pos){
-  shots.push_back(new Shot(DimBoard, 0.3, get<0>(pos), get<1>(pos),get<2>(pos), 5, -10));
+  shots.push_back(new Shot(DimBoard, 0.3, get<0>(pos), get<1>(pos),get<2>(pos), 5, -10, false));
   cout << "fire" << endl;
   disparoAnterior = time(NULL);
 }
 
 void fireEnemy(tuple<float,float,float> pos){
-  shotsEnemy.push_back(new Shot(DimBoard, 0.3, get<0>(pos), get<1>(pos),get<2>(pos), 5, 10));
+  shotsEnemy.push_back(new Shot(DimBoard, 0.3, get<0>(pos), get<1>(pos),get<2>(pos), 5, 10, true));
   cout << "fireEnemy" << endl;
 }
 
@@ -296,7 +296,7 @@ void boss(){
     auxS->draw();
     auxS->update();
     pos = auxS->getPos();
-    if (get<2>(pos)<-800){
+    if (get<2>(pos)<-200){
       shots.erase(shots.begin()+j);
       break;
     }
