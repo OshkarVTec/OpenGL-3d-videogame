@@ -280,6 +280,7 @@ void boss(){
   //Se dibujan los meteoritos
   meteoritosActuales = time(NULL);
   delta = meteoritosActuales - meteoritosAnteriores;
+  if(delta > 0.5) lineaMeteoritos();
   for(int j = 0; j < meteoritos.size(); j++){
     auxM = (Meteorito *)meteoritos[j];
     auxM->draw();
@@ -289,7 +290,12 @@ void boss(){
       meteoritos.erase(meteoritos.begin()+j);
       break;
     }
+  //Colision con nave
+    if (checkCollision(nave->getRadio(), auxM->getRadio(), nave->getPos(), pos)){
+      gameOver = true;
+    }
   }
+  
   //Se dibujan los disparos
   for(int j = 0; j < shots.size(); j++){
     auxS = (Shot *)shots[j];
