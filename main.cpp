@@ -278,15 +278,12 @@ void boss(){
   enemy->update(dir);
 
   //Se dibujan los meteoritos
-  meteoritosActuales = time(NULL);
-  delta = meteoritosActuales - meteoritosAnteriores;
-  if(delta > 0.5) lineaMeteoritos();
   for(int j = 0; j < meteoritos.size(); j++){
     auxM = (Meteorito *)meteoritos[j];
     auxM->draw();
     auxM->update();
     pos = auxM->getPos();
-    if (get<2>(pos )> 200){
+    if (get<2>(pos )> 210){
       meteoritos.erase(meteoritos.begin()+j);
       break;
     }
@@ -295,16 +292,20 @@ void boss(){
       gameOver = true;
     }
   }
-  
+
   //Se dibujan los disparos
   for(int j = 0; j < shots.size(); j++){
     auxS = (Shot *)shots[j];
     auxS->draw();
     auxS->update();
     pos = auxS->getPos();
-    if (get<2>(pos)<-200){
+    if (get<2>(pos)<-210){
       shots.erase(shots.begin()+j);
       break;
+    }
+    //Colision disparo-enemy
+    if(checkCollision(enemy->getRadio(), auxS->getRadio(), enemy->getPos(), pos)){
+      gameOver=true;
     }
     //Colision meteorito-disparo
     for(int k = 0; k < meteoritos.size(); k++){
@@ -312,11 +313,11 @@ void boss(){
       if(checkCollision(auxS->getRadio(),auxM->getRadio(), pos, auxM->getPos())){
         meteoritos.erase(meteoritos.begin()+k);
         shots.erase(shots.begin()+j);
-        goto after;
+        goto afterB;
       }
     }
   }
-  after:
+  afterB:
 
   //Se dibujan los disparos enemigos
   for(int j = 0; j < shotsEnemy.size(); j++){
@@ -327,6 +328,10 @@ void boss(){
     if (get<2>(pos)>200){
       shotsEnemy.erase(shotsEnemy.begin()+j);
       break;
+    }
+    //Colision disparo-nave
+    if(checkCollision(nave->getRadio(), auxS->getRadio(), nave->getPos(), pos)){
+      //Daño a enemy
     }
   }
   //Disparo
