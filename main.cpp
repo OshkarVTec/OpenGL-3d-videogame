@@ -55,11 +55,14 @@ int dir = 2;
 int dirEnemy = 2;
 //Bandera de fin de juego
 bool gameOver = false;
+bool win = false;
 
 
 //timers
 time_t disparoAnterior = time(NULL);
 time_t disparoActual;
+time_t disparoEnemyActual;
+time_t disparoEnemyAnterior = time(NULL);
 time_t delta;
 
 time_t meteoritosActuales;
@@ -207,8 +210,39 @@ int minimaxStarter(int depth, int nodeIndex,
   else return 1;
 }
 
-void buildTree(vector<float> &scores){
+float f(tuple<float,float,float> posCurrentNave, vector<void*> &currentShots, tuple<float,float,float> posContraNave){
+  Shot *auxS;
+  float res = 0;
+  tuple<float,float,float> posCurrentShot;
+  for(int j = 0; j < currentShots.size(); j++){
+    auxS = (Shot *)shots[j];
+    posCurrentShot = auxS->getPos();
+    res += 2*sqrt(pow(get<0>(posCurrentNave)-get<0>(posCurrentShot),2)+pow(get<1>(posCurrentNave)-get<1>(posCurrentShot),2)+pow(get<2>(posCurrentNave)-get<2>(posCurrentShot),2));
+  }
+  res -= abs(get<0>(posContraNave)-get<0>(posCurrentNave));
+  //cout << res << endl;
+  return res;
+}
 
+void buildTree(vector<float> &scores, int depth, int h, tuple<float,float,float> posEnemy, tuple<float,float,float> posNave){
+  if(depth == h){
+    scores.push_back(f(posEnemy, shots, posNave));
+    return;
+  }
+  tuple<float,float,float> newPos;
+  if(depth % 2 == 0){
+    newPos = make_tuple(get<0>(posEnemy) - 10 > -200 ? get<0>(posEnemy) - 10 : -200, get<1>(posEnemy), get<2>(posEnemy));
+    buildTree(scores, depth+1, h, newPos,posNave);
+    newPos = make_tuple(get<0>(posEnemy) + 10 < 200 ? get<0>(posEnemy) + 10 : 200, get<1>(posEnemy), get<2>(posEnemy));
+    buildTree(scores, depth+1, h, newPos,posNave);
+  }
+  else{
+    newPos = make_tuple(get<0>(posNave) - 10 > -200 ? get<0>(posNave) - 10 : -200, get<1>(posNave), get<2>(posNave));
+    buildTree(scores, depth+1, h, posEnemy,newPos);
+    newPos = make_tuple(get<0>(posNave) + 10 < 200 ? get<0>(posNave) + 10 : 200, get<1>(posNave), get<2>(posNave));
+    buildTree(scores, depth+1, h, posEnemy,newPos);
+  }
+  return;
 }
 
 
@@ -223,14 +257,6 @@ void normalGame(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   //drawAxis();
   glColor3f(0.3, 0.3, 0.3);
-
-  //El piso es dibujado
-  glBegin(GL_QUADS);
-      glVertex3d(-DimBoard, 0.0, -DimBoard);
-      glVertex3d(-DimBoard, 0.0, DimBoard);
-      glVertex3d(DimBoard, 0.0, DimBoard);
-      glVertex3d(DimBoard, 0.0, -DimBoard);
-  glEnd();
 
   //Se dibuja la nave
   nave = (Nave *)naves[0];
@@ -293,7 +319,6 @@ void boss(){
   tuple<float,float,float> posNave;
   //Arbol de juego
   vector<float> scores;
-  buildTree(scores);
   Shot *auxS;
   Meteorito *auxM;
   Nave *nave, *enemy;
@@ -301,14 +326,6 @@ void boss(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   //drawAxis();
   glColor3f(0.3, 0.3, 0.3);
-
-  //El piso es dibujado
-  glBegin(GL_QUADS);
-      glVertex3d(-DimBoard, 0.0, -DimBoard);
-      glVertex3d(-DimBoard, 0.0, DimBoard);
-      glVertex3d(DimBoard, 0.0, DimBoard);
-      glVertex3d(DimBoard, 0.0, -DimBoard);
-  glEnd();
 
   //Se dibuja la nave
   nave = (Nave *)naves[0];
@@ -320,6 +337,11 @@ void boss(){
   enemy->draw();
   //dirEnemy = minimaxStarter(0,0, scores, 5);// A simple C++ program to find
   enemy->update(dirEnemy);
+
+  scores.clear();
+  buildTree(scores,0,3,enemy->getPos(), nave->getPos());
+  dirEnemy = minimaxStarter(0,0, scores, 3);
+
 
   //Se dibujan los meteoritos
   for(int j = 0; j < meteoritos.size(); j++){
@@ -349,7 +371,7 @@ void boss(){
     }
     //Colision disparo-enemy
     if(checkCollision(enemy->getRadio(), auxS->getRadio(), enemy->getPos(), pos)){
-      gameOver=true;
+      win=true;
     }
     //Colision meteorito-disparo
     for(int k = 0; k < meteoritos.size(); k++){
@@ -369,13 +391,13 @@ void boss(){
     auxS->draw();
     auxS->update();
     pos = auxS->getPos();
-    if (get<2>(pos)>200){
+    if (get<2>(pos)>210){
       shotsEnemy.erase(shotsEnemy.begin()+j);
       break;
     }
     //Colision disparo-nave
     if(checkCollision(nave->getRadio(), auxS->getRadio(), nave->getPos(), pos)){
-      //Daño a enemy
+      gameOver = true;
     }
   }
   //Disparo
@@ -384,21 +406,39 @@ void boss(){
     delta = disparoActual - disparoAnterior;
     if(delta > 1){
       fire(nave->getPos());
-      fireEnemy(enemy->getPos());
     }
     trigger = false;
+  }
+  disparoEnemyActual = time(NULL);
+  delta = disparoEnemyActual - disparoEnemyAnterior;
+  if (delta > 0.8) {
+    fireEnemy(enemy->getPos());
+    disparoEnemyAnterior = time(NULL);
   }
 }
 
 
 void display()
 { 
-    if(!gameOver){
+    if(!gameOver && !win){
         current = time(NULL);
         delta = current - start;
-        if(delta < 10) normalGame();
+        if(delta < 20) normalGame();
         else boss();
       }
+    else if(win){
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+      // Disable depth testing
+      glDisable(GL_DEPTH_TEST);
+      
+      // Display game over message
+      glColor3f(1.0f, 0.0f, 0.0f); // Set color to red
+      drawString("You win!", -60, 100); // Display text at position (100, 100)
+      
+      // Enable depth testing
+      glEnable(GL_DEPTH_TEST);
+    }
     else {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
