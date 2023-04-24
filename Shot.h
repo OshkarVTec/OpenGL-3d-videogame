@@ -14,7 +14,7 @@ using namespace std;
 class Shot
 {
     public:
-        Shot(int, float, float, float, float, float);
+        Shot(int, float, float, float, float, float, float);
         ~Shot();
         void draw();
         void update();
@@ -27,7 +27,7 @@ class Shot
     private:
         //Vector de direccion
         float Position[3];
-        float Direction[3] = {0,0,-10};
+        float Direction[3] = {0,0,0};
         int DimBoard;
         float radio;
         bool collision;

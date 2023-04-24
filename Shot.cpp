@@ -1,7 +1,7 @@
 #include "Shot.h"
 #include "math.h"
 
-Shot::Shot(int dim, float vel,float x, float y, float z, float height)
+Shot::Shot(int dim, float vel,float x, float y, float z, float height, float dirZ)
 {
     DimBoard = dim;
     //srand(time(nullptr));
@@ -16,7 +16,7 @@ Shot::Shot(int dim, float vel,float x, float y, float z, float height)
     //se multiplica el vector de direccion por la magnitud de la velocidad
     Direction[0] *= vel;
     Direction[1] *= vel;
-    Direction[2] *= vel;
+    Direction[2] = dirZ * vel;
 
     //cal. del radio Shot
     this->height = height;

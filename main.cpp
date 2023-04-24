@@ -76,6 +76,7 @@ float health = 1.0f;
 
 vector<void*> naves;
 vector<void*> shots;
+vector<void*> shotsEnemy;
 vector<void*> meteoritos;
 
 int i;
@@ -140,9 +141,14 @@ void keyOperations (void) {
 }  
 
 void fire(tuple<float,float,float> pos){
-  shots.push_back(new Shot(DimBoard, 0.3, get<0>(pos), get<1>(pos),get<2>(pos), 5));
+  shots.push_back(new Shot(DimBoard, 0.3, get<0>(pos), get<1>(pos),get<2>(pos), 5, -10));
   cout << "fire" << endl;
   disparoAnterior = time(NULL);
+}
+
+void fireEnemy(tuple<float,float,float> pos){
+  shotsEnemy.push_back(new Shot(DimBoard, 0.3, get<0>(pos), get<1>(pos),get<2>(pos), 5, 10));
+  cout << "fireEnemy" << endl;
 }
 
 void lineaMeteoritos(){
@@ -284,7 +290,7 @@ void boss(){
       break;
     }
   }
-          //Se dibujan los disparos
+  //Se dibujan los disparos
   for(int j = 0; j < shots.size(); j++){
     auxS = (Shot *)shots[j];
     auxS->draw();
@@ -305,12 +311,25 @@ void boss(){
     }
   }
   after:
+
+  //Se dibujan los disparos enemigos
+  for(int j = 0; j < shotsEnemy.size(); j++){
+    auxS = (Shot *)shotsEnemy[j];
+    auxS->draw();
+    auxS->update();
+    pos = auxS->getPos();
+    if (get<2>(pos)>200){
+      shotsEnemy.erase(shotsEnemy.begin()+j);
+      break;
+    }
+  }
   //Disparo
   if(trigger){
     disparoActual = time(NULL);
     delta = disparoActual - disparoAnterior;
     if(delta > 1){
       fire(nave->getPos());
+      fireEnemy(enemy->getPos());
     }
     trigger = false;
   }
@@ -322,7 +341,7 @@ void display()
     if(!gameOver){
         current = time(NULL);
         delta = current - start;
-        if(delta < 1) normalGame();
+        if(delta < 10) normalGame();
         else boss();
       }
     else {
