@@ -416,6 +416,9 @@ void boss()
   buildTree(scores, 0, 3, enemy->getPos(), nave->getPos());
   dirEnemy = minimaxStarter(0, 0, scores, 3);
 
+  // Enable texturing and bind the texture
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, texture[0]);
   // Se dibujan los meteoritos
   for (int j = 0; j < meteoritos.size(); j++)
   {
@@ -434,6 +437,7 @@ void boss()
       gameOver = true;
     }
   }
+  glDisable(GL_TEXTURE_2D);
 
   // Se dibujan los disparos
   for (int j = 0; j < shots.size(); j++)
