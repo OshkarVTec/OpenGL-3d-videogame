@@ -54,7 +54,7 @@ void Nave::update(int dir) //0-left 1-right 2-stop
 
          //cout << "X=" << Position[0] << "; Y= " << Position[2] << endl;
 
-         if (abs(new_x) <= DimBoard)
+         if (abs(new_x) <= 200)
                Position[0] = new_x;
 
 

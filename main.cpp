@@ -48,7 +48,7 @@ float Y_MAX = 500;
 float Z_MIN = -500;
 float Z_MAX = 500;
 // Size del tablero
-int DimBoard = 200;
+int DimBoard = 800;
 // Direccion de nave
 int dir = 2;
 // Direccion de nave enemiga
@@ -72,10 +72,7 @@ time_t current;
 
 char *filename0 = "img/meteoritoTexture.bmp";
 char *filename1 = "img/naveTexture.bmp";
-char *filename2 = "textura2.bmp";
-char *filename3 = "textura3.bmp";
-char *filename4 = "textura4.bmp";
-char *filename5 = "textura5.bmp";
+char *filename2 = "img/skyTexture.bmp";
 
 bool trigger = false;
 float health = 1.0f;
@@ -90,7 +87,7 @@ vector<void *> meteoritos;
 int i;
 
 // se define la cantidad de texturas que se manejaran
-#define NTextures 6
+#define NTextures 3
 GLuint texture[NTextures];
 
 // Read a texture map from a BMP bitmap file.
@@ -140,6 +137,34 @@ void drawAxis()
   glLineWidth(1.0);
 }
 
+void drawSky(){
+  // Enable texturing and bind the texture
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, texture[2]);
+  glColor3f(1, 1, 1);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0.0, 0.0);
+  glVertex3d(-DimBoard, -100.0, -DimBoard);
+  glTexCoord2f(0.0, 1.0);
+  glVertex3d(-DimBoard, -100.0, DimBoard);
+  glTexCoord2f(1.0, 1.0);
+  glVertex3d(DimBoard, -100.0, DimBoard);
+  glTexCoord2f(1.0, 0.0);
+  glVertex3d(DimBoard, -100.0, -DimBoard);
+  glEnd();
+  glBegin(GL_QUADS);
+  glTexCoord2f(0.0, 0.0);
+  glVertex3d(-DimBoard, -100, -200);
+  glTexCoord2f(0.0, 1.0);
+  glVertex3d(DimBoard, -100, -200);
+  glTexCoord2f(1.0, 1.0);
+  glVertex3d(DimBoard, DimBoard, -300);
+  glTexCoord2f(1.0, 0.0);
+  glVertex3d(-DimBoard, DimBoard, -300);
+  glEnd();
+  glDisable(GL_TEXTURE_2D);
+}
+
 void init()
 {
   glMatrixMode(GL_PROJECTION);
@@ -156,9 +181,6 @@ void init()
   loadTextureFromFile(filename0, 0);
   loadTextureFromFile(filename1, 1);
   loadTextureFromFile(filename2, 2);
-  loadTextureFromFile(filename3, 3);
-  loadTextureFromFile(filename4, 4);
-  loadTextureFromFile(filename5, 5);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
@@ -219,6 +241,8 @@ void lineaMeteoritos()
 // Function to display text on the screen
 void drawString(string str, int x, int y)
 {
+  drawSky();
+  glColor3f(1,0,0);
   glRasterPos2i(x, y);
   for (int i = 0; i < str.length(); i++)
   {
@@ -317,9 +341,8 @@ void normalGame()
   keyOperations();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // drawAxis();
-  glColor3f(0.3, 0.3, 0.3);
+  drawSky();
 
-   // Enable texturing and bind the texture
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture[1]);
   // Se dibuja la nave
@@ -402,7 +425,7 @@ void boss()
   keyOperations();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // drawAxis();
-  glColor3f(0.3, 0.3, 0.3);
+  drawSky();
 
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture[1]);
