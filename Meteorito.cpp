@@ -31,8 +31,11 @@ void Meteorito::draw()
 {
     glPushMatrix();
     glTranslatef(Position[0], Position[1], Position[2]);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glutSolidSphere(radio, 30, 30);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    GLUquadric *qobj = gluNewQuadric();
+    gluQuadricTexture( qobj, GL_TRUE );
+    gluSphere( qobj, radio, 30, 30 );
+    gluDeleteQuadric( qobj );
     glPopMatrix();
 }
 
