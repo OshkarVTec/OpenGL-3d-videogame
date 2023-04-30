@@ -1,9 +1,8 @@
 #include "Shot.h"
 #include "math.h"
 
-Shot::Shot(int dim, float vel,float x, float y, float z, float height, float dirZ, bool enemy)
+Shot::Shot( float vel,float x, float y, float z, float height, float dirZ, bool enemy)
 {
-    DimBoard = dim;
     //srand(time(nullptr));
     int c;
 
@@ -74,8 +73,4 @@ float Shot::getRadio(){
 
 tuple<float, float, float> Shot::getPos(){
    return make_tuple(Position[0], Position[1], Position[2]);
-}
-
-void Shot::collided(){
-   collision = true;
 }

@@ -49,7 +49,6 @@ class Nave
         float Direction[3];
         int DimBoard;
         float radio;
-        bool collision;
 };
 
 #endif // NAVE_H
