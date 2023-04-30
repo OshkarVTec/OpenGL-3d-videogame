@@ -25,17 +25,24 @@ class Nave
     protected:
 
     private:
-        float vertexCoords[24] = {  // Coordinates for the vertices of a cube.
-                   1,1,1,   1,1,-1,   1,-1,-1,   1,-1,1,
-                  -1,1,1,  -1,1,-1,  -1,-1,-1,  -1,-1,1  };
+        float vertexCoords[48] =  {-1.0f, 0.0f, 1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 1.0f,
+  -1.0f, 1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f, 0.0f, -1.0f, -1.0f, 0.0f, -1.0f,
+  1.0f, 0.0f, 1.0f,   1.0f, 0.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
+  -1.0f, 0.0f, -1.0f,  -1.0f, 0.0f, 1.0f,  -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f
+  };
 
         float vertexColors[24] = {  // An RGB color value for each vertex
                    1,1,1,   1,0,0,   1,1,0,   0,1,0,
                    0,0,1,   1,0,1,   0,0,0,   0,1,1  };
 
-        int elementArray[24] = {  // Vertex number for the six faces.
-                  0,1,2,3, 0,3,7,4, 0,4,5,1,
-                  6,2,1,5, 6,5,4,7, 6,7,3,2  };
+        int elementArray[24] = {0,1,2,3, 4,5,6,7, 3,2,5,4, 7,6,1,0,
+                                  8,9,10,11, 12,13,14,15};
+
+        float texCoords[32] = { 0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0,
+                               0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0,
+                               0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0,
+                               0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0
+                             };
 
         //Vector de direccion
         float Position[3];

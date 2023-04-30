@@ -71,7 +71,7 @@ time_t start = time(NULL);
 time_t current;
 
 char *filename0 = "img/meteoritoTexture.bmp";
-char *filename1 = "textura1.bmp";
+char *filename1 = "img/naveTexture.bmp";
 char *filename2 = "textura2.bmp";
 char *filename3 = "textura3.bmp";
 char *filename4 = "textura4.bmp";
@@ -159,6 +159,8 @@ void init()
   loadTextureFromFile(filename3, 3);
   loadTextureFromFile(filename4, 4);
   loadTextureFromFile(filename5, 5);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 bool checkCollision(float r1, float r2, tuple<float, float, float> const &p1, tuple<float, float, float> const &p2)
@@ -317,13 +319,14 @@ void normalGame()
   // drawAxis();
   glColor3f(0.3, 0.3, 0.3);
 
+   // Enable texturing and bind the texture
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, texture[1]);
   // Se dibuja la nave
   nave = (Nave *)naves[0];
   nave->draw();
   nave->update(dir);
 
-  // Enable texturing and bind the texture
-  glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture[0]);
   // Se dibujan los meteoritos
   meteoritosActuales = time(NULL);
@@ -401,6 +404,8 @@ void boss()
   // drawAxis();
   glColor3f(0.3, 0.3, 0.3);
 
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, texture[1]);
   // Se dibuja la nave
   nave = (Nave *)naves[0];
   nave->draw();
@@ -416,8 +421,6 @@ void boss()
   buildTree(scores, 0, 3, enemy->getPos(), nave->getPos());
   dirEnemy = minimaxStarter(0, 0, scores, 3);
 
-  // Enable texturing and bind the texture
-  glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, texture[0]);
   // Se dibujan los meteoritos
   for (int j = 0; j < meteoritos.size(); j++)
