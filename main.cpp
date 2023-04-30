@@ -23,8 +23,8 @@ using namespace std;
 bool *keyStates = new bool[256];
 
 // Variables dimensiones de la pantalla
-int WIDTH = 500;
-int HEIGTH = 500;
+int WIDTH = 800;
+int HEIGTH = 800;
 // Variables para establecer los valores de gluPerspective
 float FOVY = 60.0;
 float ZNEAR = 0.01;
@@ -227,12 +227,14 @@ void fireEnemy(tuple<float, float, float> pos)
 void lineaMeteoritos()
 {
   double probability = 0.5;
+  int size;
   for (i = -200; i <= 200; i += 80)
   {
     double randomNumber = (double)rand() / RAND_MAX;
+    size = 10 + (rand() % 30);
     if (randomNumber < probability)
     {
-      meteoritos.push_back(new Meteorito(DimBoard, 4, i, 10, -800, 30));
+      meteoritos.push_back(new Meteorito(DimBoard, 4, i, 10, -800, size));
     }
   }
   meteoritosAnteriores = time(NULL);
@@ -554,7 +556,7 @@ void display()
 
     // Display game over message
     glColor3f(1.0f, 0.0f, 0.0f);      // Set color to red
-    drawString("You win!", -60, 100); // Display text at position (100, 100)
+    drawString("You win!", -40, 100); // Display text
 
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
@@ -568,7 +570,7 @@ void display()
 
     // Display game over message
     glColor3f(1.0f, 0.0f, 0.0f);       // Set color to red
-    drawString("Game Over", -60, 100); // Display text at position (100, 100)
+    drawString("Game Over", -40, 100); // Display text at position (100, 100)
 
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
